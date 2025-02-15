@@ -2,8 +2,8 @@
 # Define la app y carga las rutas.
 
 from fastapi import FastAPI
-from database import engine, Base
-from routes import users, messages
+from app.database import engine, Base
+from app.routes import users, messages
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)

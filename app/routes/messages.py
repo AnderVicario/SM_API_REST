@@ -3,9 +3,9 @@
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from models import Message
-from schemas import MessageCreate
-from database import get_db
+from app.models import Message
+from app.schemas import MessageCreate
+from app.database import get_db
 import uuid
 
 router = APIRouter()
