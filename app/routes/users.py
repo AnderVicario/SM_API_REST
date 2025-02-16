@@ -19,7 +19,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Usuario registrado exitosamente"}
 
-@router.get("/users/{username}")
+@router.get("/get_key/{username}")
 def get_public_key(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
     if not user:

@@ -22,7 +22,7 @@ def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Mensaje enviado"}
 
-@router.get("/messages/{receiver}")
+@router.get("/receive_messages/{receiver}")
 def get_messages(receiver: str, db: Session = Depends(get_db)):
     messages = db.query(Message).filter(Message.receiver == receiver).all()
     return [{"sender": msg.sender, "encrypted_message": msg.encrypted_message} for msg in messages]
