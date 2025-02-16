@@ -9,6 +9,7 @@ class User(Base):
     __tablename__ = "users"
     username = Column(String, primary_key=True, unique=True, index=True)
     public_key = Column(Text, nullable=False)
+    password_hash = Column(String, nullable=False)
 
 class Message(Base):
     __tablename__ = "messages"
