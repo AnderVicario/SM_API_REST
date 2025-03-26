@@ -2,6 +2,7 @@
 # Define los modelos de entrada/salida.
 
 from pydantic import BaseModel
+from datetime import datetime
 
 class UserCreate(BaseModel):
     username: str
@@ -21,3 +22,9 @@ class MessageCreate(BaseModel):
     sender: str
     receiver: str
     encrypted_message: str
+
+class MessageResponse(BaseModel):
+    sender: str
+    encrypted_message: str
+    timestamp: datetime
+    is_initial: bool
