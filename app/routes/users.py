@@ -5,7 +5,7 @@ import base64
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.models import User
-from app.schemas import UserCreate, UserLogin, UpdatePublicKey
+from app.schemas import UserCreate, UserLogin, UpdatePublicKey, UpdateProfilePicture
 from app.database import get_db
 from passlib.context import CryptContext
 
