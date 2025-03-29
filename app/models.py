@@ -1,7 +1,7 @@
 # 🔹 models.py - Definición de Tablas
 # Define las tablas User y Message.
 
-from sqlalchemy import Column, String, Text, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, String, Text, ForeignKey, DateTime, Boolean, LargeBinary
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime, timezone
@@ -11,6 +11,7 @@ class User(Base):
     username = Column(String, primary_key=True, unique=True, index=True)
     public_key = Column(Text, nullable=False)
     password_hash = Column(String, nullable=False)
+    profile_picture = Column(LargeBinary, nullable=True)
 
 class Message(Base):
     __tablename__ = "messages"

@@ -18,6 +18,11 @@ class UpdatePublicKey(BaseModel):
     password: str
     new_public_key: str
 
+class UpdateProfilePicture(BaseModel):
+    username: str
+    password: str
+    profile_picture: str
+
 class MessageCreate(BaseModel):
     sender: str
     receiver: str
