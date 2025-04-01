@@ -4,6 +4,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from app.database import engine, Base
 from app.routes import users, messages
+from app.websocket_manager import manager  # Importa el manager aquí
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -17,26 +18,6 @@ app.include_router(messages.router, prefix="/messages", tags=["Mensajes"])
 @app.get("/")
 def root():
     return {"message": "API de mensajería segura en funcionamiento"}
-
-
-# 🔹 WebSocket Manager
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: dict[str, WebSocket] = {}
-
-    async def connect(self, username: str, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections[username] = websocket
-
-    def disconnect(self, username: str):
-        self.active_connections.pop(username, None)
-
-    async def send_personal_message(self, message: str, username: str):
-        websocket = self.active_connections.get(username)
-        if websocket:
-            await websocket.send_text(message)
-
-manager = ConnectionManager()
 
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(websocket: WebSocket, username: str):

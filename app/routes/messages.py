@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from app.models import Message
 from app.schemas import MessageCreate, MessageResponse
 from app.database import get_db
-from app.main import manager
+from app.websocket_manager import manager
 import uuid
 from datetime import datetime, timezone
 
