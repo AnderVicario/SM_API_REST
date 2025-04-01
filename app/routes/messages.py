@@ -7,14 +7,15 @@ from sqlalchemy import or_
 from app.models import Message
 from app.schemas import MessageCreate, MessageResponse
 from app.database import get_db
+from app.main import manager
 import uuid
 from datetime import datetime, timezone
 
 router = APIRouter()
 
 @router.post("/send_message")
-def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
-    # Verificar si ya existe un mensaje en la conversación (en ambos sentidos)
+async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
+    # Verificar si ya existe un mensaje en la conversación
     existing_message = db.query(Message).filter(
         or_(
             ((Message.sender == msg.sender) & (Message.receiver == msg.receiver)),
@@ -32,6 +33,10 @@ def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
     )
     db.add(new_msg)
     db.commit()
+
+    # Notificar al receptor mediante WebSockets
+    await manager.send_personal_message(f"Nuevo mensaje de {msg.sender}", msg.receiver)
+
     return {
         "message": "Mensaje enviado",
         "timestamp": new_msg.timestamp,
