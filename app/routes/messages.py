@@ -34,8 +34,11 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
     db.add(new_msg)
     db.commit()
 
-    # Notificar al receptor mediante WebSockets
-    await manager.send_personal_message(f"{msg.sender}", msg.receiver)
+    # Notificar al receptor con tipo 'new_message'
+    await manager.send_personal_message(
+        {"type": "new_message", "sender": msg.sender},
+        msg.receiver
+    )
 
     return {
         "message": "Mensaje enviado",

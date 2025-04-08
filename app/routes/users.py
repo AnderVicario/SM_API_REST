@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import User
 from app.schemas import UserCreate, UserLogin, UpdatePublicKey, UpdateProfilePicture
 from app.database import get_db
+from app.websocket_manager import manager
 from passlib.context import CryptContext
 
 router = APIRouter()
@@ -47,6 +48,17 @@ def get_public_key(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return {"public_key": user.public_key}
 
+@router.get("/get_profile_picture/{username}")
+def get_profile_picture(username: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    # Convertir binario a Base64 si existe la imagen
+    profile_picture = base64.b64encode(user.profile_picture).decode("utf-8") if user.profile_picture else None
+    
+    return {"profile_picture": profile_picture}
+
 @router.put("/update_key")
 def update_public_key(data: UpdatePublicKey, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == data.username).first()
@@ -63,7 +75,7 @@ def update_public_key(data: UpdatePublicKey, db: Session = Depends(get_db)):
     return {"message": "Clave pública actualizada exitosamente"}
 
 @router.put("/update_profile_picture")
-def update_profile_picture(data: UpdateProfilePicture, db: Session = Depends(get_db)):
+async def update_profile_picture(data: UpdateProfilePicture, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == data.username).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -76,6 +88,10 @@ def update_profile_picture(data: UpdateProfilePicture, db: Session = Depends(get
     try:
         if data.profile_picture:
             db_user.profile_picture = base64.b64decode(data.profile_picture)
+            await manager.send_personal_message(
+                {"type": "profile_updated", "username": data.username},
+                data.username  # Envía a su propia conexión (ajusta según necesidad)
+            )
     except Exception:
         raise HTTPException(status_code=400, detail="Imagen en Base64 no válida")
 

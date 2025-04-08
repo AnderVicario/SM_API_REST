@@ -16,6 +16,6 @@ class ConnectionManager:
     async def send_personal_message(self, message: str, username: str):
         websocket = self.active_connections.get(username)
         if websocket:
-            await websocket.send_text(message)
+            await websocket.send_json(message)
 
 manager = ConnectionManager()

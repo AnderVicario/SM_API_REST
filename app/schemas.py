@@ -3,6 +3,7 @@
 
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Union
 
 class UserCreate(BaseModel):
     username: str
