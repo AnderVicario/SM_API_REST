@@ -4,7 +4,7 @@
 import base64
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from app.models import User
+from app.models import User, Message
 from app.schemas import UserCreate, UserLogin, UpdatePublicKey, UpdateProfilePicture
 from app.database import get_db
 from app.websocket_manager import manager
@@ -79,21 +79,34 @@ async def update_profile_picture(data: UpdateProfilePicture, db: Session = Depen
     db_user = db.query(User).filter(User.username == data.username).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
-    # Verificar contraseña
+
     if not pwd_context.verify(data.password, db_user.password_hash):
         raise HTTPException(status_code=400, detail="Contraseña incorrecta")
-    
-    # Decodificar y validar Base64
+
     try:
         if data.profile_picture:
             db_user.profile_picture = base64.b64decode(data.profile_picture)
-            await manager.send_personal_message(
-                {"type": "profile_updated", "username": data.username},
-                data.username  # Envía a su propia conexión (ajusta según necesidad)
-            )
     except Exception:
         raise HTTPException(status_code=400, detail="Imagen en Base64 no válida")
 
     db.commit()
+
+    # # Notificar al propio usuario
+    # await manager.send_personal_message(
+    #     {"type": "profile_updated", "username": data.username},
+    #     data.username
+    # )
+
+    # # Obtener contactos con los que está hablando
+    # contacts = db.query(Message.receiver).filter(Message.sender == data.username).distinct().all()
+    # contacts += db.query(Message.sender).filter(Message.receiver == data.username).distinct().all()
+    # contacts = list(set([c[0] for c in contacts if c[0] != data.username]))
+
+    # # Notificar a cada contacto
+    # for contact in contacts:
+    #     await manager.send_personal_message(
+    #         {"type": "profile_updated", "username": data.username},
+    #         contact
+    #     )
+
     return {"message": "Foto de perfil actualizada exitosamente"}
