@@ -23,6 +23,18 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
         )
     ).first()
 
+    if existing_message is None:
+        new_msg = Message(
+            id=str(uuid.uuid4()),
+            sender=msg.sender,
+            receiver=msg.receiver,
+            encrypted_message="Hola! Quiero hablar contigo.",
+            timestamp=datetime.now(timezone.utc),
+            is_initial=True
+        )
+        db.add(new_msg)
+        db.commit()
+
     new_msg = Message(
         id=str(uuid.uuid4()),
         sender=msg.sender,
