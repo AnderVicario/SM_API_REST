@@ -51,15 +51,6 @@ def get_messages(receiver: str, db: Session = Depends(get_db)):
     # Obtener todos los mensajes para el receptor
     messages = db.query(Message).filter(Message.receiver == receiver).all()
     
-    # Separamos los mensajes iniciales de los no iniciales
-    non_initial_messages = [msg for msg in messages if not msg.is_initial]
-    
-    # Borrar de la base de datos los mensajes que no sean iniciales
-    for msg in non_initial_messages:
-        db.delete(msg)
-    db.commit()
-    
-    # Devolver únicamente los mensajes iniciales (los que se mantienen)
     return [
         MessageResponse(
             sender=msg.sender,
