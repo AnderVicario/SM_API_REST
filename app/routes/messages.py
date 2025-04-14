@@ -46,10 +46,15 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
     db.add(new_msg)
     db.commit()
 
-    # Notificar al receptor con tipo 'new_message'
+    # Notificar tanto al receptor como al emisor
     await manager.send_personal_message(
-        {"type": "new_message", "sender": msg.sender},
+        {"type": "new_message", "sender": msg.sender, "is_yourself": False},
         msg.receiver
+    )
+
+    await manager.send_personal_message(
+        {"type": "new_message", "sender": msg.sender, "is_yourself": True},
+        msg.sender
     )
 
     return {
@@ -60,8 +65,13 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
 
 @router.get("/receive_messages/{receiver}", response_model=list[MessageResponse])
 def get_messages(receiver: str, db: Session = Depends(get_db)):
-    # Obtener todos los mensajes para el receptor
-    messages = db.query(Message).filter(Message.receiver == receiver).all()
+    # Obtener todos los mensajes relacionados con el usuario (tanto enviados como recibidos)
+    messages = db.query(Message).filter(
+        or_(
+            Message.receiver == receiver,
+            Message.sender == receiver
+        )
+    ).order_by(Message.timestamp).all()
     
     return [
         MessageResponse(
