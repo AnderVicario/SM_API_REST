@@ -31,6 +31,7 @@ class MessageCreate(BaseModel):
 
 class MessageResponse(BaseModel):
     sender: str
+    receiver: str
     encrypted_message: str
     timestamp: datetime
     is_initial: bool

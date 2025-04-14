@@ -76,6 +76,7 @@ def get_messages(receiver: str, db: Session = Depends(get_db)):
     return [
         MessageResponse(
             sender=msg.sender,
+            receiver=msg.receiver,
             encrypted_message=msg.encrypted_message,
             timestamp=msg.timestamp,
             is_initial=msg.is_initial
