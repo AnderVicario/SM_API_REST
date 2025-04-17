@@ -61,7 +61,7 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
 
     return {
         "message": "Mensaje enviado",
-        "timestamp": timestamp,
+        "timestamp": timestamp.isoformat().replace("+00:00", "Z"),
         "is_initial": new_msg.is_initial
     }
 
