@@ -24,6 +24,6 @@ async def websocket_endpoint(websocket: WebSocket, username: str):
     await manager.connect(username, websocket)
     try:
         while True:
-            await websocket.receive_text()  # Mantener la conexión abierta
+            await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(username)
+        manager.disconnect(username, websocket)

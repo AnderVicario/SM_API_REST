@@ -4,18 +4,23 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: dict[str, WebSocket] = {}
+        self.active_connections: dict[str, list[WebSocket]] = {}
 
     async def connect(self, username: str, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[username] = websocket
+        if username not in self.active_connections:
+            self.active_connections[username] = []
+        self.active_connections[username].append(websocket)
 
-    def disconnect(self, username: str):
-        self.active_connections.pop(username, None)
+    def disconnect(self, username: str, websocket: WebSocket):
+        if username in self.active_connections:
+            self.active_connections[username].remove(websocket)
+            if not self.active_connections[username]:
+                del self.active_connections[username]
 
     async def send_personal_message(self, message: str, username: str):
-        websocket = self.active_connections.get(username)
-        if websocket:
-            await websocket.send_json(message)
+        if username in self.active_connections:
+            for websocket in self.active_connections[username]:
+                await websocket.send_json(message)
 
 manager = ConnectionManager()
