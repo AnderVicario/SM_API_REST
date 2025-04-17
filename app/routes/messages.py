@@ -41,7 +41,7 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
         receiver=msg.receiver,
         encrypted_message=msg.encrypted_message,
         timestamp=datetime.now(timezone.utc),
-        is_initial=True if existing_message is None else False
+        is_initial=False
     )
     db.add(new_msg)
     db.commit()
