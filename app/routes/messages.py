@@ -23,7 +23,7 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
         )
     ).first()
 
-    timestamp=timestamp = datetime.now().replace(microsecond=0)
+    timestamp=datetime.now(timezone.utc)
 
     if existing_message is None:
         new_msg = Message(
@@ -80,7 +80,7 @@ def get_messages(receiver: str, db: Session = Depends(get_db)):
             sender=msg.sender,
             receiver=msg.receiver,
             encrypted_message=msg.encrypted_message,
-            timestamp=msg.timestamp,
+            timestamp=msg.timestamp.replace(tzinfo=timezone.utc) if msg.timestamp.tzinfo is None else msg.timestamp,
             is_initial=msg.is_initial
         )
         for msg in messages
