@@ -23,7 +23,7 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
         )
     ).first()
 
-    timestamp=datetime.now(timezone.utc)
+    timestamp=timestamp = datetime.now().replace(microsecond=0)
 
     if existing_message is None:
         new_msg = Message(
