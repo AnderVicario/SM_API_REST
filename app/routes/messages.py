@@ -23,13 +23,15 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
         )
     ).first()
 
+    timestamp=datetime.now(timezone.utc)
+
     if existing_message is None:
         new_msg = Message(
             id=str(uuid.uuid4()),
             sender=msg.sender,
             receiver=msg.receiver,
             encrypted_message="Hola! Quiero hablar contigo.",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=timestamp,
             is_initial=True
         )
         db.add(new_msg)
@@ -40,7 +42,7 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
         sender=msg.sender,
         receiver=msg.receiver,
         encrypted_message=msg.encrypted_message,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=timestamp,
         is_initial=False
     )
     db.add(new_msg)
@@ -59,7 +61,7 @@ async def send_message(msg: MessageCreate, db: Session = Depends(get_db)):
 
     return {
         "message": "Mensaje enviado",
-        "timestamp": new_msg.timestamp,
+        "timestamp": timestamp,
         "is_initial": new_msg.is_initial
     }
 
